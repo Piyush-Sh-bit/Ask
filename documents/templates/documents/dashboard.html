@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - MedSecureVault{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="bi bi-speedometer2 me-2"></i>Dashboard
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{% url 'documents:upload' %}" class="btn btn-primary">
+                <i class="bi bi-cloud-upload me-1"></i>Upload Document
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Welcome Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="alert alert-primary" role="alert">
+            <h4 class="alert-heading">
+                <i class="bi bi-person-circle me-2"></i>Welcome back, {{ user.get_full_name|default:user.email }}!
+            </h4>
+            <p class="mb-0">
+                You're logged in as a <strong>{{ user.get_role_display }}</strong>. 
+                Manage your medical documents securely from this dashboard.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ total_documents }}</h4>
+                        <p class="card-text">Total Documents</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-file-earmark-text" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ user.get_role_display }}</h4>
+                        <p class="card-text">Account Type</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-person-badge" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card text-white bg-info">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">Secure</h4>
+                        <p class="card-text">Storage</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-shield-lock" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card text-white bg-warning">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">24/7</h4>
+                        <p class="card-text">Access</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-clock" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Documents -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-clock-history me-2"></i>Recent Documents
+                </h5>
+                <a href="{% url 'documents:list' %}" class="btn btn-outline-primary btn-sm">
+                    View All <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+            </div>
+            <div class="card-body">
+                {% if documents %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Document</th>
+                                    <th>Type</th>
+                                    <th>Uploaded</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for document in documents %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            {% if document.is_pdf %}
+                                                <i class="bi bi-file-pdf text-danger me-2"></i>
+                                            {% elif document.is_image %}
+                                                <i class="bi bi-file-image text-primary me-2"></i>
+                                            {% else %}
+                                                <i class="bi bi-file-earmark text-secondary me-2"></i>
+                                            {% endif %}
+                                            <div>
+                                                <strong>{{ document.title }}</strong>
+                                                {% if document.description %}
+                                                    <br><small class="text-muted">{{ document.description|truncatechars:50 }}</small>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary">{{ document.get_doc_type_display }}</span>
+                                    </td>
+                                    <td>
+                                        <small>{{ document.uploaded_at|date:"M d, Y" }}</small>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{% url 'documents:detail' document.pk %}" 
+                                               class="btn btn-outline-primary" title="View">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <a href="{% url 'documents:download' document.pk %}" 
+                                               class="btn btn-outline-success" title="Download">
+                                                <i class="bi bi-download"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-file-earmark-plus text-muted" style="font-size: 4rem;"></i>
+                        <h4 class="mt-3 text-muted">No Documents Yet</h4>
+                        <p class="text-muted">Start by uploading your first medical document.</p>
+                        <a href="{% url 'documents:upload' %}" class="btn btn-primary">
+                            <i class="bi bi-cloud-upload me-2"></i>Upload Your First Document
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

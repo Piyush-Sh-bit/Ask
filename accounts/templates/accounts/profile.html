@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile - MedSecureVault{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="bi bi-person-circle me-2"></i>My Profile
+    </h1>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-info-circle me-2"></i>Account Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-sm-3">
+                        <strong>Full Name:</strong>
+                    </div>
+                    <div class="col-sm-9">
+                        {{ user.get_full_name|default:"Not provided" }}
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-sm-3">
+                        <strong>Email:</strong>
+                    </div>
+                    <div class="col-sm-9">
+                        {{ user.email }}
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-sm-3">
+                        <strong>Role:</strong>
+                    </div>
+                    <div class="col-sm-9">
+                        <span class="badge bg-primary">{{ user.get_role_display }}</span>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-sm-3">
+                        <strong>Member Since:</strong>
+                    </div>
+                    <div class="col-sm-9">
+                        {{ user.date_joined|date:"F d, Y" }}
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-sm-3">
+                        <strong>Account Status:</strong>
+                    </div>
+                    <div class="col-sm-9">
+                        {% if user.is_active %}
+                            <span class="badge bg-success">Active</span>
+                        {% else %}
+                            <span class="badge bg-danger">Inactive</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-gear me-2"></i>Quick Actions
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'documents:upload' %}" class="btn btn-primary">
+                        <i class="bi bi-cloud-upload me-2"></i>Upload Document
+                    </a>
+                    <a href="{% url 'documents:list' %}" class="btn btn-outline-primary">
+                        <i class="bi bi-file-earmark-text me-2"></i>View My Documents
+                    </a>
+                    <a href="{% url 'documents:dashboard' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-speedometer2 me-2"></i>Go to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-shield-check me-2"></i>Security
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted small mb-2">
+                    Your account is secured with industry-standard encryption.
+                </p>
+                <div class="d-grid">
+                    <button class="btn btn-outline-warning btn-sm" disabled>
+                        <i class="bi bi-key me-2"></i>Change Password
+                    </button>
+                </div>
+                <small class="text-muted">Feature coming soon</small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

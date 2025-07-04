@@ -18,15 +18,20 @@
         .main-content {
             min-height: calc(100vh - 56px);
         }
-        .document-card {
+        .document-card, .patient-card {
             transition: transform 0.2s;
         }
-        .document-card:hover {
+        .document-card:hover, .patient-card:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
         .role-badge {
             font-size: 0.75rem;
+        }
+        .nav-link.active {
+            background-color: #e9ecef;
+            color: #495057 !important;
+            border-radius: 0.375rem;
         }
     </style>
 </head>
@@ -34,7 +39,7 @@
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{% url 'documents:dashboard' %}">
+            <a class="navbar-brand" href="{% if user.is_authenticated %}{% if user.role == 'doctor' %}{% url 'accounts:doctor_dashboard' %}{% else %}{% url 'accounts:patient_dashboard' %}{% endif %}{% else %}{% url 'accounts:login' %}{% endif %}">
                 <i class="bi bi-shield-lock-fill me-2"></i>MedSecureVault
             </a>
             
@@ -51,7 +56,26 @@
                             <i class="bi bi-person me-2"></i>Profile
                         </a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="{% url 'accounts:logout' %}">
+                        {% if user.role == 'doctor' %}
+                        <li><a class="dropdown-item" href="{% url 'accounts:doctor_dashboard' %}">
+                            <i class="bi bi-speedometer2 me-2"></i>Doctor Dashboard
+                        </a></li>
+                        <li><a class="dropdown-item" href="{% url 'accounts:patient_list' %}">
+                            <i class="bi bi-people me-2"></i>Patient List
+                        </a></li>
+                        {% else %}
+                        <li><a class="dropdown-item" href="{% url 'accounts:patient_dashboard' %}">
+                            <i class="bi bi-speedometer2 me-2"></i>Patient Dashboard
+                        </a></li>
+                        <li><a class="dropdown-item" href="{% url 'documents:upload' %}">
+                            <i class="bi bi-cloud-upload me-2"></i>Upload Document
+                        </a></li>
+                        <li><a class="dropdown-item" href="{% url 'documents:list' %}">
+                            <i class="bi bi-file-earmark-text me-2"></i>My Documents
+                        </a></li>
+                        {% endif %}
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}">
                             <i class="bi bi-box-arrow-right me-2"></i>Logout
                         </a></li>
                     </ul>
@@ -68,9 +92,23 @@
             <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
                 <div class="position-sticky pt-3">
                     <ul class="nav flex-column">
+                        {% if user.role == 'doctor' %}
                         <li class="nav-item">
-                            <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" 
-                               href="{% url 'documents:dashboard' %}">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'doctor_dashboard' %}active{% endif %}" 
+                               href="{% url 'accounts:doctor_dashboard' %}">
+                                <i class="bi bi-speedometer2 me-2"></i>Doctor Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'patient_list' %}active{% endif %}" 
+                               href="{% url 'accounts:patient_list' %}">
+                                <i class="bi bi-people me-2"></i>Patient List
+                            </a>
+                        </li>
+                        {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'patient_dashboard' or request.resolver_match.url_name == 'dashboard' %}active{% endif %}" 
+                               href="{% url 'accounts:patient_dashboard' %}">
                                 <i class="bi bi-speedometer2 me-2"></i>Dashboard
                             </a>
                         </li>
@@ -86,6 +124,7 @@
                                 <i class="bi bi-file-earmark-text me-2"></i>My Documents
                             </a>
                         </li>
+                        {% endif %}
                     </ul>
                 </div>
             </nav>

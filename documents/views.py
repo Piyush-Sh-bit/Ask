@@ -5,21 +5,18 @@ from django.http import HttpResponse, Http404
 from django.db.models import Q
 from .models import Document
 from .forms import DocumentUploadForm, DocumentSearchForm
+from accounts.decorators import patient_required
 import os
 
 @login_required
 def dashboard_view(request):
-    documents = Document.objects.filter(user=request.user)[:5]  # Latest 5 documents
-    total_documents = Document.objects.filter(user=request.user).count()
-    
-    context = {
-        'documents': documents,
-        'total_documents': total_documents,
-        'user': request.user,
-    }
-    return render(request, 'documents/dashboard.html', context)
+    # Redirect based on user role
+    if request.user.role == 'doctor':
+        return redirect('accounts:doctor_dashboard')
+    else:
+        return redirect('accounts:patient_dashboard')
 
-@login_required
+@patient_required
 def upload_document_view(request):
     if request.method == 'POST':
         form = DocumentUploadForm(request.POST, request.FILES)
@@ -33,7 +30,7 @@ def upload_document_view(request):
         form = DocumentUploadForm()
     return render(request, 'documents/upload.html', {'form': form})
 
-@login_required
+@patient_required
 def document_list_view(request):
     documents = Document.objects.filter(user=request.user)
     search_form = DocumentSearchForm(request.GET)
@@ -68,12 +65,23 @@ def document_list_view(request):
 
 @login_required
 def document_detail_view(request, pk):
-    document = get_object_or_404(Document, pk=pk, user=request.user)
+    # Patients can only see their own documents
+    # Doctors can see any document (for patient care)
+    if request.user.role == 'patient':
+        document = get_object_or_404(Document, pk=pk, user=request.user)
+    else:  # doctor
+        document = get_object_or_404(Document, pk=pk)
+    
     return render(request, 'documents/detail.html', {'document': document})
 
 @login_required
 def document_download_view(request, pk):
-    document = get_object_or_404(Document, pk=pk, user=request.user)
+    # Patients can only download their own documents
+    # Doctors can download any document (for patient care)
+    if request.user.role == 'patient':
+        document = get_object_or_404(Document, pk=pk, user=request.user)
+    else:  # doctor
+        document = get_object_or_404(Document, pk=pk)
     
     if os.path.exists(document.file.path):
         with open(document.file.path, 'rb') as fh:
@@ -82,7 +90,7 @@ def document_download_view(request, pk):
             return response
     raise Http404
 
-@login_required
+@patient_required
 def document_delete_view(request, pk):
     document = get_object_or_404(Document, pk=pk, user=request.user)
     

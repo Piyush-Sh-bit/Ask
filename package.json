@@ -1,0 +1,12 @@
+{
+  "name": "medsecurevault",
+  "version": "1.0.0",
+  "description": "AI-Powered Medical Document Organizer & Health Records Tracker",
+  "scripts": {
+    "install-deps": "pip install -r requirements.txt",
+    "migrate": "python manage.py migrate",
+    "runserver": "python manage.py runserver 0.0.0.0:8000",
+    "makemigrations": "python manage.py makemigrations"
+  },
+  "dependencies": {}
+}
